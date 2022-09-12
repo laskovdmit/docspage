@@ -1,0 +1,39 @@
+.controls
+  display: flex
+  justify-content: space-between
+  &__item
+    margin-right: 22px
+    &:last-of-type
+      margin-right: 0px
+    &--edit
+      & svg
+        width: 14px
+        height: 14px
+      & path
+        fill: $text-color
+      &:hover path
+        opacity: 0.5
+      &:active path
+        opacity: 0.3
+    &--trash
+      & svg
+        width: 13px
+        height: 15px
+      & path
+        fill: $pink
+      &:hover path
+        opacity: 0.5
+      &:active path
+        opacity: 0.3
+    &--drag
+      & svg
+        width: 8px
+        height: 16px
+      & path
+        fill: $text-color
+      &:hover path
+        opacity: 0.5
+      &:active path
+        opacity: 0.3
+    &--dragging path
+        fill: $blue
