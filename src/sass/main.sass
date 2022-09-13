@@ -1,5 +1,21 @@
 @import url('https://fonts.googleapis.com/css2?family=Fira+Sans:ital,wght@0,400;0,500;1,400&display=swap')
 
+@keyframes show 
+  0% 
+    opacity: 0
+    transform: translate(0, -100%)
+  100%
+    opacity: 1
+    transform: translate(0, 0)
+
+@keyframes hide 
+  0%
+    opacity: 1
+    transform: translate(0, 0)
+  100%
+    opacity: 0
+    transform: translate(0, -100%)
+
 .title
   font-size: 22px
   font-weight: 500

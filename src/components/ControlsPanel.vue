@@ -21,7 +21,8 @@
     <button
       type="button"
       class="btn controls__item controls__item--drag"
-      @click.stop
+      :draggable="isDraggable"
+      @dragstart="drag"
     >
       <svg viewBox="0 0 8 16" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M4.69594 14.7086C4.30473 15.0991 3.67045 15.0991 3.27924 14.7086L0.293409 11.7296C-0.097803 11.339 -0.0978031 10.7059 0.293409 10.3153C0.684621 9.92482 1.3189 9.92482 1.71011 10.3153L4.69594 13.2944C5.08715 13.6849 5.08715 14.318 4.69594 14.7086Z"/>
@@ -35,11 +36,71 @@
 </template>
 
 <script>
+import { computed } from 'vue';
+import { useStore } from 'vuex';
+
 export default {
-  emits: ['begin-drag', 'end-drag'],
-  setup() {
+  props: ['element', 'type'],
+  setup(props) {
+    const store = useStore();
+    const isDraggable = computed(() => {
+      return !store.getters['isSearch'];
+    })
+ 
+    function drag(event) {
+      let elem;
+      let className;
+      const isOrphant = store.getters['tasks'].includes(props.element);
+
+      store.commit('setActiveElem', { type: props.type, data: props.element, isOrphant });
+
+      event.dataTransfer.dropEffect = 'move';
+      event.dataTransfer.effectAllowed = 'move';
+
+      if (props.type === 'task') {
+        elem = event.target.closest('.list__item');
+        className = 'list__item--highlight';
+      } else {
+        elem = event.target.closest('.list__head');
+        className = 'list__head--highlight';
+      }
+
+      const copy = elem.cloneNode(true);
+      copy.classList.add(className);
+      copy.setAttribute('draggable', true);
+      document.body.append(copy);
+
+      elem.style.opacity = '0.3';
+      moveAt(event.pageX, event.pageY);
+
+      function moveAt(pageX, pageY) {
+        copy.style.left = pageX - copy.offsetWidth + 22 + 'px';
+        copy.style.top = pageY - copy.offsetHeight / 2 + 'px';
+      }
+
+      function onMouseMove(event) {
+        moveAt(event.pageX, event.pageY);
+      }
+
+      window.addEventListener('drag', onMouseMove);
+
+      event.target.addEventListener('dragend', () => {
+        window.removeEventListener('drag', onMouseMove);
+        
+        document.querySelectorAll('.list__head--hover')
+          .forEach(item => item.classList.remove('list__head--hover'));
+        document.querySelectorAll('.list__item--hover')
+          .forEach(item => item.classList.remove('list__item--hover'));
+
+        elem.style.opacity = '';
+        copy.remove();
+        store.commit('removeActiveElem');
+      }, { once: true });
+    }
+
     return {
-      
+      isDraggable,
+      drag
     }
   }
 };

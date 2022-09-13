@@ -6,6 +6,7 @@
     &:last-of-type
       margin-right: 0px
     &--edit
+      pointer-events: none
       & svg
         width: 14px
         height: 14px
@@ -16,6 +17,7 @@
       &:active path
         opacity: 0.3
     &--trash
+      pointer-events: none
       & svg
         width: 13px
         height: 15px
@@ -31,9 +33,3 @@
         height: 16px
       & path
         fill: $text-color
-      &:hover path
-        opacity: 0.5
-      &:active path
-        opacity: 0.3
-    &--dragging path
-        fill: $blue

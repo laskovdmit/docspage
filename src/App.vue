@@ -13,7 +13,7 @@
         v-if="searchInput.length"
         type="button"
         class="main__btn btn"
-        @click="searchInput = ''; toggleContent(true)"
+        @click="resetSearch"
       >
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M0.325608 10.746C-0.0649162 10.3555 -0.0649162 9.72233 0.325608 9.33181L9.36312 0.292893C9.75364 -0.0976313 10.3868 -0.0976309 10.7773 0.292893C11.1679 0.683418 11.1679 1.31658 10.7773 1.70711L1.73982 10.746C1.3493 11.1365 0.716132 11.1365 0.325608 10.746Z" fill="#FF238D"/>
@@ -21,123 +21,49 @@
         </svg>
       </button>
     </div>
-    <div
-      class="main__list list"
-      @dragover.prevent
-      @dragenter.prevent
-      @drop="onDrop($event, 'category')"
-    >
+    <div class="main__list list">
       <category-item 
-        v-for="category in categories"
+        v-for="category in categoriesList"
         :key="category.id"
         :category="category"
         :open="open"
-        @drop-list="(val) => onDrop(val, 'item')"
       />
     </div>
-    <div
-      ref="sublist"
-      class="main__sublist list"
-      @dragover.prevent="dragOver"
-      @dragleave="dragLeave"
-      @dragenter.prevent
-      @drop="onDrop($event, 'item')"
-    >
+    <div class="main__sublist list">
       <list-item
-        v-for="item in itemsList"
-        :key="item.id"
-        :item="item"
+        v-for="task in tasks"
+        :key="task.id"
+        :task="task"
       />
     </div>
   </div>
 </template>
 
 <script>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useStore } from 'vuex';
 import ListItem from '@/components/ListItem.vue';
 import CategoryItem from '@/components/CategoryItem.vue';
-
-const categoriesList = [
-  {
-    id: 1,
-    title: 'Обязательные для всех',
-    marks: ['pink', 'orange', 'yellow'],
-    text: 'Документы, обязательные для всех сотрудников без исключения',
-    subItems: [
-      {
-        id: 11,
-        title: 'Паспорт',
-        marks: ['blue'],
-        note: 'Обязательный',
-        text: 'Для всех'
-      },
-      {
-        id: 12,
-        title: 'ИНН',
-        marks: [],
-        note: 'Обязательный',
-        text: 'Для всех'
-      }
-    ]
-  },
-  {
-    id: 2,
-    title: 'Обязательные для трудоустройства',
-    marks: [],
-    text: 'Документы, без которых невозможно трудоустройство человека на какую бы то ни было должность в компании вне зависимости от граж',
-    subItems: []
-  },
-  {
-    id: 3,
-    title: 'Специальные',
-    marks: [],
-    text: '',
-    subItems: []
-  }
-];
-
-const list = [
-  {
-    id: 21,
-    title: 'Тестовое задание кандидата',
-    marks: [],
-    note: '',
-    text: 'Россия, Белоруссия, Украина, администратор филиала, повар-сушист, повар-пиццмейкер, повар горячего цеха'
-  },
-  {
-    id: 22,
-    title: 'Трудовой договор',
-    marks: ['blue', 'gray'],
-    note: '',
-    text: ''
-  },
-  {
-    id: 23,
-    title: 'Мед. книжка',
-    marks: [],
-    note: '',
-    text: ''
-  },
-];
 
 export default {
   name: 'App',
   setup() {
     const store = useStore();
+    const categoriesList = computed(() => store.getters['categoriesList']);
+    const tasks = computed(() => store.getters['tasks']);
+
     const searchInput = ref('');
-    const categories = ref([...categoriesList]);
-    const itemsList = ref([...list]);
     const main = ref(null);
-    const sublist = ref(null);
     const open = ref(false);
 
     function search(event) {
       const value = event.target.value;
 
       if (value === '') {
+        store.commit('setSearch', false);
         toggleContent(true);
       } else {
+        store.commit('setSearch', true);
         toggleContent(false);
 
         const titles = main.value.querySelectorAll('.list__title');
@@ -186,37 +112,21 @@ export default {
       }
     }
 
-    function dragOver() {
-      if (sublist.value.classList.contains('main__sublist--highlight')) return;
-      sublist.value.classList.add('main__sublist--highlight');
+    function resetSearch() {
+      searchInput.value = '';
+      toggleContent(true);
+      store.commit('setSearch', false);
     }
 
-    function dragLeave() {
-      sublist.value.classList.remove('main__sublist--highlight');
-    }
-
-
-    function onDrop(event, type) {
-      const activeElem = store.getters['activeElem'];
-
-      if (type !== activeElem.type) return;
-
-      console.log('drop', event);
-      console.log(activeElem);
-    }
-    
     return {
-      main,
-      sublist,
-      itemsList,
-      categories,
-      search,
+      categoriesList,
+      tasks,
       searchInput,
-      toggleContent,
+      main,
       open,
-      onDrop,
-      dragOver,
-      dragLeave
+      search,
+      toggleContent,
+      resetSearch
     }
   },
   components: { CategoryItem, ListItem }

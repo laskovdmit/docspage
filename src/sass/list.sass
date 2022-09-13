@@ -4,22 +4,28 @@
   overflow-y: auto
   &__category
     width: 100%
-    &--highlight
-      border-bottom: 5px solid $blue
   &__head, &__item
+    font-family: Fira Sans
     cursor: pointer
     position: relative
     display: flex
     align-items: center
     padding-right: 100px
     border: 1px solid $border-color
+    background-color: #fff
   &__head
     width: 1160px
     height: 48px
     padding-left: 52px
+    &--hover
+      border-bottom: 5px solid $blue
     &--highlight
-      // opacity: 0.2
-      // box-shadow: 0px 3px 16px rgba(0, 102, 255, 0.7)
+      pointer-events: none
+      position: absolute
+      z-index: 1000
+      box-shadow: 0px 3px 16px rgba(0, 102, 255, 0.7)
+      & .controls__item--drag path
+        fill: $blue
     &::after, &::before
       content: ""
       position: absolute
@@ -39,18 +45,24 @@
       transform: translate(0, -50%) rotate(180deg)
       transition: 0.3s
     &--active
+      & + .list__body
+        display: block
+        pointer-events: all
+        animation: show 0.5s
+        animation-fill-mode: forwards
       &::before
         transform: translate(0, -50%)
   &__body
+    pointer-events: none
     display: none
     width: 1144px
     margin-left: auto
     overflow: hidden
+    animation: hide 0.5s
+    animation-fill-mode: forwards
     &--empty
       width: 1160px
       margin-left: 0px
-    &--highlight
-      border-bottom: 5px solid $blue 
   &__body &__item
     width: 1144px
     margin-top: -1px
@@ -59,9 +71,15 @@
     width: 1160px
     height: 35px
     border: 1px solid $border-color
+    &--hover
+      border-bottom: 5px solid $blue 
     &--highlight
+      pointer-events: none
       position: absolute
+      z-index: 1000
       box-shadow: 0px 3px 16px rgba(0, 102, 255, 0.7)
+      & .controls__item--drag path
+        fill: $blue
   &__title
     font-size: 15px
     font-weight: 500
